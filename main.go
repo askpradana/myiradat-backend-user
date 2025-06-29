@@ -7,43 +7,56 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"iradat/profile/configs"
+	"iradat/profile/docs"   // Programmatic Swagger info
+	_ "iradat/profile/docs" // Import Swagger docs
 	"iradat/profile/internal/user"
 	"log"
 	"os"
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Println("⚠️ Could not load .env file")
 	}
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "dev"
+	}
+	envFile := fmt.Sprintf(".env_%s", env)
+	if err := godotenv.Overload(envFile); err != nil {
+		log.Printf("⚠️ Could not load %s\n", envFile)
+	}
 
-	// Load necessary configurations
+	// Load configurations
 	configs.ReloadDatabaseConfig()
 	configs.ReloadRedis()
 
-	// Get HTTP port from environment or fallback
+	// Get HTTP port
 	httpPort := os.Getenv("HTTP_PORT")
 	if httpPort == "" {
 		httpPort = "8000"
 	}
 
-	// Initialize Gin router
-	router := gin.Default()
+	// Set Swagger info dynamically
+	docs.SwaggerInfo.Host = "localhost:" + httpPort
+	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Title = "Iradat User Service API"
+	docs.SwaggerInfo.Description = "This is the User Service API for Iradat project."
+	docs.SwaggerInfo.Version = "1.0"
 
-	// Register route groups
+	router := gin.Default()
 	user.HttpHandler(router)
 
-	// Swagger docs endpoint
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Start server
-	log.Printf("✅ Starting HTTP server on port %s\n", httpPort)
+	log.Printf("✅ Starting HTTP server on port %s (ENV=%s)\n", httpPort, env)
 	if err := router.Run(":" + httpPort); err != nil {
 		log.Fatalf("❌ Server failed to start: %v", err)
 	}
