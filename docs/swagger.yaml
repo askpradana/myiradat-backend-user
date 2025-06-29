@@ -1,0 +1,30 @@
+basePath: /
+definitions:
+  user.ResponseGetDetail:
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is the User Service API for Iradat project.
+  title: Iradat User Service API
+  version: "1.0"
+paths:
+  /user/get-user-detail:
+    get:
+      consumes:
+      - application/json
+      description: Get detail of a user by ID or session context
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ResponseGetDetail'
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Get user detail
+      tags:
+      - user
+swagger: "2.0"
