@@ -16,7 +16,7 @@ func corsHandler(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `{"status": "service profile is up and running"}`)
+	fmt.Fprintf(w, `{"status": "service profile is up and running in docker!"}`)
 }
 
 func userProfileHandler(w http.ResponseWriter, r *http.Request) {
