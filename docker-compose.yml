@@ -1,0 +1,7 @@
+services:
+  profile:
+    build:
+      context: .
+    container_name: profile-service
+    ports:
+      - "7792:7792"
