@@ -12,10 +12,9 @@ import (
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
 	"iradat/profile/configs"
-	"iradat/profile/docs"   // Programmatic Swagger info
-	_ "iradat/profile/docs" // Import Swagger docs
+	"iradat/profile/docs"
+	_ "iradat/profile/docs"
 	"iradat/profile/internal/user"
 	"log"
 	"os"
@@ -44,7 +43,6 @@ func main() {
 		httpPort = "8000"
 	}
 
-	// Set Swagger info dynamically
 	docs.SwaggerInfo.Host = "localhost:" + httpPort
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Title = "Iradat User Service API"

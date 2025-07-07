@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vfyuliawan/my-golang-sdk/core/api_constant"
 	"github.com/vfyuliawan/my-golang-sdk/core/json_response"
+	"iradat/profile/internal/user/dto"
 	"net/http"
 )
 
@@ -34,7 +35,7 @@ type Handler struct {
 // @Failure 400 {object} any
 // @Router /user/get-user-detail [get]
 func (h *Handler) GetUserDetail(c *gin.Context) {
-	res, err := h.service.GetUserDetail(c, RequestGetDetail{})
+	res, err := h.service.GetUserDetail(c, dto.RequestGetDetail{})
 	if err != nil {
 		json_response.Error("User Service", api_constant.InvalidRequest.GetCode(), err.Error(), http.StatusBadRequest)
 	}
