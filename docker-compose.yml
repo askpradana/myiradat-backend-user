@@ -5,3 +5,5 @@ services:
     container_name: profile-service
     ports:
       - "7792:7792"
+    env_file:
+      - .env
