@@ -50,14 +50,20 @@ jobs:
             echo ">> Listing directory contents:"
             ls -lah
 
+            echo ">> Listing Go files to verify:"
+            find . -name '*.go' -exec ls -lah {} \;
+
             echo ">> Docker Compose version:"
             docker compose version || docker-compose version
 
             echo ">> Bringing service down..."
             docker compose -f docker-compose.yml down || echo "[!] compose down failed (not fatal)"
 
+            echo ">> Building without cache..."
+            docker compose -f docker-compose.yml build --no-cache || { echo "[!] build failed"; exit 1; }
+
             echo ">> Bringing service up..."
-            docker compose -f docker-compose.yml up --build -d || { echo "[!] compose up failed"; exit 1; }
+            docker compose -f docker-compose.yml up -d || { echo "[!] compose up failed"; exit 1; }
 
             echo "✅ Deploy complete."
           EOF
