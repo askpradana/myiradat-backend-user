@@ -34,12 +34,6 @@ var gormConfig = gorm.Config{
 }
 
 func loadConfig() (*databaseConfig, error) {
-	// Debug: Print environment variables (remove this in production)
-	log.Printf("Debug - DB_HOST: %s", os.Getenv("DB_HOST"))
-	log.Printf("Debug - DB_USER: %s", os.Getenv("DB_USER"))
-	log.Printf("Debug - DB_NAME: %s", os.Getenv("DB_NAME"))
-	log.Printf("Debug - DB_PORT: %s", os.Getenv("DB_PORT"))
-
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		getEnv("DB_HOST", "localhost"),
