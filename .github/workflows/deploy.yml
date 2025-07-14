@@ -21,7 +21,8 @@ jobs:
       - name: Build Go Profile Service
         run: |
           go mod tidy
-          go build -o profile-service .
+          cd cmd/myiradat-backend-user
+          go build -o ../../profile-service .
 
       # Step 4: Deploy to VPS via SCP + SSH
       - name: Deploy to VPS
