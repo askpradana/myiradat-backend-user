@@ -2,6 +2,7 @@ package user
 
 import (
 	"myiradat-backend-auth/internal/configs"
+	"myiradat-backend-auth/internal/middleware"
 	"myiradat-backend-auth/internal/response"
 	"myiradat-backend-auth/internal/user/dto"
 	"net/http"
@@ -28,17 +29,17 @@ func HttpHandler(r *gin.Engine) {
 
 	// Register routes
 	r.GET("/", handler.HealthCheck)
-	r.POST("/profile/summary", handler.GetProfileSummary)
-	r.POST("/profile/detail", handler.GetProfileDetail)
-	r.GET("/services-with-roles", handler.GetServicesWithRoles)
-	r.POST("/profiles", handler.CreateProfile)
-	r.POST("/profiles/list", handler.ListProfiles)
-	r.POST("/profiles/update-with-roles", handler.UpdateProfileWithRoles)
-	r.POST("/profile/update-basic", handler.UpdateProfile)
-	r.POST("/ipro-tests", handler.CreateIproTest)
-	r.POST("/ipros-tests", handler.CreateIprosTest)
-	r.POST("/iprob-tests", handler.CreateIprobTest)
-	r.POST("/improve-care", handler.CreateConsult)
+	r.POST("/profile/summary", middleware.AuthMiddleware("admin"), handler.GetProfileSummary)
+	r.POST("/profile/detail", middleware.AuthMiddleware("admin"), handler.GetProfileDetail)
+	r.GET("/services-with-roles", middleware.AuthMiddleware("admin"), handler.GetServicesWithRoles)
+	r.POST("/profiles", middleware.AuthMiddleware("admin"), handler.CreateProfile)
+	r.POST("/profiles/list", middleware.AuthMiddleware("admin"), handler.ListProfiles)
+	r.POST("/profiles/update-with-roles", middleware.AuthMiddleware("admin"), handler.UpdateProfileWithRoles)
+	r.POST("/profile/update-basic", middleware.AuthMiddleware("user"), handler.UpdateProfile)
+	r.POST("/ipro-tests", middleware.AuthMiddleware("admin"), handler.CreateIproTest)
+	r.POST("/ipros-tests", middleware.AuthMiddleware("admin"), handler.CreateIprosTest)
+	r.POST("/iprob-tests", middleware.AuthMiddleware("admin"), handler.CreateIprobTest)
+	r.POST("/improve-care", middleware.AuthMiddleware("admin"), handler.CreateConsult)
 }
 
 func (h *Handler) HealthCheck(c *gin.Context) {
