@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"myiradat-backend-auth/internal/user/dto"
 	"myiradat-backend-auth/internal/user/model"
+	"time"
 )
 
 type Service interface {
@@ -36,49 +37,54 @@ func (s *service) GetProfileSummary(email string) (dto.ProfileSummaryResponse, e
 		return dto.ProfileSummaryResponse{}, errors.New("profile not found")
 	}
 
-	// Consult & comments
-	var consult *model.Consult
-	consult, _ = s.repo.FindLatestConsultByProfileID(profile.ID)
-
-	var comments []model.Comment
-	if consult != nil {
-		comments, _ = s.repo.FindCommentsByConsultID(consult.ID)
-	}
-
+	// ============================
+	// Consult & Comments Section
+	// ============================
+	var consultDate *time.Time
+	var analysisResult string
 	var commentDTOs []dto.CommentDTO
-	for _, c := range comments {
-		commentDTOs = append(commentDTOs, dto.CommentDTO{
-			ID:      c.ID,
-			Comment: c.Comment,
-		})
+
+	if consult, err := s.repo.FindLatestConsultByProfileID(profile.ID); err == nil && consult != nil {
+		consultDate = consult.ConsultDate
+		analysisResult = consult.AnalysisResult
+
+		if comments, err := s.repo.FindCommentsByConsultID(consult.ID); err == nil {
+			for _, c := range comments {
+				commentDTOs = append(commentDTOs, dto.CommentDTO{
+					ID:      c.ID,
+					Comment: c.Comment,
+				})
+			}
+		}
 	}
 
-	// Tests
-	var ipro model.IproTest
-	_ = s.repo.FindIproTestByProfileID(&ipro, profile.ID)
-
-	var iprob model.IprobTest
-	_ = s.repo.FindIprobTestByProfileID(&iprob, profile.ID)
-
-	var ipros model.IprosTest
-	_ = s.repo.FindIprosTestByProfileID(&ipros, profile.ID)
-
-	// Parse JSON result ke struct sesuai
+	// ============================
+	// Test Sections
+	// ============================
 	var iproResult dto.IproTestResult
-	if err := json.Unmarshal(ipro.Result, &iproResult); err != nil {
-		iproResult = dto.IproTestResult{}
+	var iproDate *time.Time
+	if ipro := s.getIproTest(profile.ID); ipro != nil {
+		iproDate = ipro.TestTakenDate
+		_ = json.Unmarshal(ipro.Result, &iproResult)
 	}
 
 	var iprobResult dto.IproTestResult
-	if err := json.Unmarshal(iprob.Result, &iprobResult); err != nil {
-		iprobResult = dto.IproTestResult{}
+	var iprobDate *time.Time
+	if iprob := s.getIprobTest(profile.ID); iprob != nil {
+		iprobDate = iprob.TestTakenDate
+		_ = json.Unmarshal(iprob.Result, &iprobResult)
 	}
 
 	var iprosResult dto.IprosTestResult
-	if err := json.Unmarshal(ipros.Result, &iprosResult); err != nil {
-		iprosResult = dto.IprosTestResult{}
+	var iprosDate *time.Time
+	if ipros := s.getIprosTest(profile.ID); ipros != nil {
+		iprosDate = ipros.TestTakenDate
+		_ = json.Unmarshal(ipros.Result, &iprosResult)
 	}
 
+	// ============================
+	// Final Response Assembly
+	// ============================
 	return dto.ProfileSummaryResponse{
 		Profile: dto.ProfileInfoDTO{
 			Email: profile.Email,
@@ -86,25 +92,49 @@ func (s *service) GetProfileSummary(email string) (dto.ProfileSummaryResponse, e
 			Name:  profile.Name,
 		},
 		Consults: dto.ConsultDTO{
-			ConsultDate:          consult.ConsultDate,
-			LatestAnalysisResult: consult.AnalysisResult,
+			ConsultDate:          consultDate,
+			LatestAnalysisResult: analysisResult,
 			LatestComments:       commentDTOs,
 		},
 		Tests: dto.TestsDTO{
 			Ipro: dto.TestResultDTO[dto.IproTestResult]{
-				TestTakenDate: ipro.TestTakenDate,
+				TestTakenDate: iproDate,
 				Result:        iproResult,
 			},
 			Iprob: dto.TestResultDTO[dto.IproTestResult]{
-				TestTakenDate: iprob.TestTakenDate,
+				TestTakenDate: iprobDate,
 				Result:        iprobResult,
 			},
 			Ipros: dto.TestResultDTO[dto.IprosTestResult]{
-				TestTakenDate: ipros.TestTakenDate,
+				TestTakenDate: iprosDate,
 				Result:        iprosResult,
 			},
 		},
 	}, nil
+}
+
+func (s *service) getIproTest(profileID int) *model.IproTest {
+	var t model.IproTest
+	if err := s.repo.FindIproTestByProfileID(&t, profileID); err != nil {
+		return nil
+	}
+	return &t
+}
+
+func (s *service) getIprobTest(profileID int) *model.IprobTest {
+	var t model.IprobTest
+	if err := s.repo.FindIprobTestByProfileID(&t, profileID); err != nil {
+		return nil
+	}
+	return &t
+}
+
+func (s *service) getIprosTest(profileID int) *model.IprosTest {
+	var t model.IprosTest
+	if err := s.repo.FindIprosTestByProfileID(&t, profileID); err != nil {
+		return nil
+	}
+	return &t
 }
 
 func (s *service) GetProfileDetail(email string) (*dto.GetProfileDetailResponse, error) {

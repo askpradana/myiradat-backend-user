@@ -29,13 +29,20 @@ func HttpHandler(r *gin.Engine) {
 
 	// Register routes
 	r.GET("/", handler.HealthCheck)
-	r.POST("/profile/summary", middleware.AuthMiddleware("admin"), handler.GetProfileSummary)
-	r.POST("/profile/detail", middleware.AuthMiddleware("admin"), handler.GetProfileDetail)
+
+	r.GET("/profiles/me/detail", middleware.AuthMiddleware("admin", "user"), handler.GetMyProfileDetail)
+	r.GET("/profiles/me/summary", middleware.AuthMiddleware("admin", "user"), handler.GetMyProfileSummary)
+
+	//User manajemen
+	r.POST("/profiles/summary", middleware.AuthMiddleware("admin"), handler.GetProfileSummary)
+	r.POST("/profiles/detail", middleware.AuthMiddleware("admin"), handler.GetProfileDetail)
 	r.GET("/services-with-roles", middleware.AuthMiddleware("admin"), handler.GetServicesWithRoles)
 	r.POST("/profiles", middleware.AuthMiddleware("admin"), handler.CreateProfile)
 	r.POST("/profiles/list", middleware.AuthMiddleware("admin"), handler.ListProfiles)
 	r.POST("/profiles/update-with-roles", middleware.AuthMiddleware("admin"), handler.UpdateProfileWithRoles)
 	r.POST("/profile/update-basic", middleware.AuthMiddleware("user"), handler.UpdateProfile)
+
+	//Create Test
 	r.POST("/ipro-tests", middleware.AuthMiddleware("admin"), handler.CreateIproTest)
 	r.POST("/ipros-tests", middleware.AuthMiddleware("admin"), handler.CreateIprosTest)
 	r.POST("/iprob-tests", middleware.AuthMiddleware("admin"), handler.CreateIprobTest)
@@ -70,6 +77,50 @@ func (h *Handler) GetProfileDetail(c *gin.Context) {
 	}
 
 	result, err := h.service.GetProfileDetail(req.Email)
+	if err != nil {
+		response.ServerError(c, err.Error())
+		return
+	}
+
+	response.Success(c, result)
+}
+
+func (h *Handler) GetMyProfileSummary(c *gin.Context) {
+	emailVal, exists := c.Get("userEmail")
+	if !exists {
+		response.ServerError(c, "user email not found in context")
+		return
+	}
+
+	email, ok := emailVal.(string)
+	if !ok || email == "" {
+		response.ServerError(c, "invalid email in context")
+		return
+	}
+
+	data, err := h.service.GetProfileSummary(email)
+	if err != nil {
+		response.ServerError(c, err.Error())
+		return
+	}
+
+	response.Success(c, data)
+}
+
+func (h *Handler) GetMyProfileDetail(c *gin.Context) {
+	emailVal, exists := c.Get("userEmail")
+	if !exists {
+		response.ServerError(c, "user email not found in context")
+		return
+	}
+
+	email, ok := emailVal.(string)
+	if !ok || email == "" {
+		response.ServerError(c, "invalid email in context")
+		return
+	}
+
+	result, err := h.service.GetProfileDetail(email)
 	if err != nil {
 		response.ServerError(c, err.Error())
 		return

@@ -63,7 +63,7 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 
 		var dashRole string
 		for _, svc := range claims.Services {
-			if svc.ServiceCode == "DASH" {
+			if svc.ServiceCode == "DASHBOARD" {
 				dashRole = svc.RoleName
 				break
 			}
