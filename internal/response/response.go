@@ -11,8 +11,8 @@ func Success(c *gin.Context, data interface{}) {
 	})
 }
 
-func Error(c *gin.Context, errs interface{}) {
-	c.JSON(http.StatusBadRequest, gin.H{
+func Error(c *gin.Context, statusCode int, errs interface{}) {
+	c.JSON(statusCode, gin.H{
 		"errors": errs,
 	})
 }

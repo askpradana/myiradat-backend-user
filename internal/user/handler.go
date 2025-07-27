@@ -56,7 +56,7 @@ func (h *Handler) HealthCheck(c *gin.Context) {
 func (h *Handler) GetProfileSummary(c *gin.Context) {
 	var req dto.GetProfileSummaryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, "invalid request: email is required and must be valid")
+		response.Error(c, http.StatusBadRequest, "invalid request: email is required and must be valid")
 		return
 	}
 
@@ -72,7 +72,7 @@ func (h *Handler) GetProfileSummary(c *gin.Context) {
 func (h *Handler) GetProfileDetail(c *gin.Context) {
 	var req dto.GetProfileDetailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -141,7 +141,7 @@ func (h *Handler) GetServicesWithRoles(c *gin.Context) {
 func (h *Handler) ListProfiles(c *gin.Context) {
 	var req dto.ListProfilesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -157,12 +157,12 @@ func (h *Handler) ListProfiles(c *gin.Context) {
 func (h *Handler) CreateProfile(c *gin.Context) {
 	var req dto.CreateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.CreateProfile(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -172,12 +172,12 @@ func (h *Handler) CreateProfile(c *gin.Context) {
 func (h *Handler) UpdateProfileWithRoles(c *gin.Context) {
 	var req dto.UpdateProfileWithRolesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.UpdateProfileWithRoles(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -187,12 +187,12 @@ func (h *Handler) UpdateProfileWithRoles(c *gin.Context) {
 func (h *Handler) UpdateProfile(c *gin.Context) {
 	var req dto.UpdateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.UpdateProfile(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -202,12 +202,12 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 func (h *Handler) CreateIproTest(c *gin.Context) {
 	var req dto.CreateIproTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.CreateIproTest(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -217,12 +217,12 @@ func (h *Handler) CreateIproTest(c *gin.Context) {
 func (h *Handler) CreateIprosTest(c *gin.Context) {
 	var req dto.CreateIprosTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.CreateIprosTest(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -232,12 +232,12 @@ func (h *Handler) CreateIprosTest(c *gin.Context) {
 func (h *Handler) CreateIprobTest(c *gin.Context) {
 	var req dto.CreateIprobTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.service.CreateIprobTest(req); err != nil {
-		response.Error(c, err.Error())
+		response.ServerError(c, err.Error())
 		return
 	}
 
@@ -247,7 +247,7 @@ func (h *Handler) CreateIprobTest(c *gin.Context) {
 func (h *Handler) CreateConsult(c *gin.Context) {
 	var req dto.CreateConsultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, err.Error())
+		response.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 

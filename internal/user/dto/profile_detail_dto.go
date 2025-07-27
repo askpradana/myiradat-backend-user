@@ -6,7 +6,8 @@ type GetProfileDetailRequest struct {
 
 type ServiceWithRole struct {
 	ServiceID   int    `json:"serviceId"`
-	ServiceName string `json:"servicName"`
+	ServiceName string `json:"serviceName"`
+	ServiceCode string `json:"serviceCode"`
 	RoleID      int    `json:"roleId"`
 	RoleName    string `json:"roleName"`
 }

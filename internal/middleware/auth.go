@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"os"
 	"strings"
 
@@ -25,14 +26,14 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response.Error(c, "missing authorization header")
+			response.Error(c, http.StatusUnauthorized, "missing authorization header")
 			c.Abort()
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			response.Error(c, "invalid authorization header format")
+			response.Error(c, http.StatusUnauthorized, "invalid authorization header format")
 			c.Abort()
 			return
 		}
@@ -49,14 +50,14 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 			return []byte(jwtSecret), nil
 		})
 		if err != nil || !token.Valid {
-			response.Error(c, "invalid or expired token")
+			response.Error(c, http.StatusUnauthorized, "invalid or expired token")
 			c.Abort()
 			return
 		}
 
 		claims, ok := token.Claims.(*CustomClaims)
 		if !ok {
-			response.Error(c, "invalid token claims")
+			response.Error(c, http.StatusUnauthorized, "invalid token claims")
 			c.Abort()
 			return
 		}
@@ -70,7 +71,7 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		if dashRole == "" {
-			response.Error(c, "no access to service DASH")
+			response.Error(c, http.StatusForbidden, "no access to service DASH")
 			c.Abort()
 			return
 		}
@@ -84,7 +85,7 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		if !roleAllowed {
-			response.Error(c, "access denied for your role")
+			response.Error(c, http.StatusForbidden, "access denied for your role")
 			c.Abort()
 			return
 		}
