@@ -1,5 +1,9 @@
 package dto
 
+type GetProfileDetailByIDRequest struct {
+	ID int `json:"id" binding:"required"`
+}
+
 type GetProfileDetailRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }

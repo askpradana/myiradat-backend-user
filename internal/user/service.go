@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetProfileSummary(email string) (dto.ProfileSummaryResponse, error)
 	GetProfileDetail(email string) (*dto.GetProfileDetailResponse, error)
+	GetProfileDetailByID(id int) (*dto.GetProfileDetailResponse, error)
 	GetServicesWithRoles() ([]dto.ServiceWithRolesDTO, error)
 	ListProfiles(req dto.ListProfilesRequest) (dto.PaginatedResponse[dto.ProfileResponse], error)
 	CreateProfile(input dto.CreateProfileRequest) error
@@ -158,6 +159,26 @@ func (s *service) GetProfileDetail(email string) (*dto.GetProfileDetailResponse,
 	}, nil
 }
 
+func (s *service) GetProfileDetailByID(id int) (*dto.GetProfileDetailResponse, error) {
+	var profile model.Profile
+	if err := s.repo.FindProfileByID(&profile, id); err != nil {
+		return nil, err
+	}
+
+	services, err := s.repo.GetProfileServicesWithRoles(profile.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetProfileDetailResponse{
+		ID:       profile.ID,
+		Name:     profile.Name,
+		Email:    profile.Email,
+		NoHP:     profile.NoHP,
+		Services: services,
+	}, nil
+}
+
 func (s *service) GetServicesWithRoles() ([]dto.ServiceWithRolesDTO, error) {
 	services, err := s.repo.GetServicesWithRoles()
 	if err != nil {
@@ -226,7 +247,6 @@ func (s *service) CreateProfile(input dto.CreateProfileRequest) error {
 }
 
 func (s *service) ListProfiles(req dto.ListProfilesRequest) (dto.PaginatedResponse[dto.ProfileResponse], error) {
-	// Default values
 	page := req.Page
 	if page <= 0 {
 		page = 1
@@ -238,7 +258,7 @@ func (s *service) ListProfiles(req dto.ListProfilesRequest) (dto.PaginatedRespon
 
 	offset := (page - 1) * pageSize
 
-	profiles, total, err := s.repo.ListProfiles(pageSize, offset)
+	profiles, total, err := s.repo.ListProfiles(pageSize, offset, req.Search)
 	if err != nil {
 		return dto.PaginatedResponse[dto.ProfileResponse]{}, err
 	}

@@ -36,6 +36,7 @@ func HttpHandler(r *gin.Engine) {
 	//User manajemen
 	r.POST("/profiles/summary", middleware.AuthMiddleware("admin"), handler.GetProfileSummary)
 	r.POST("/profiles/detail", middleware.AuthMiddleware("admin"), handler.GetProfileDetail)
+	r.POST("/profiles/detail-by-id", middleware.AuthMiddleware("admin"), handler.GetProfileDetailByID)
 	r.GET("/services-with-roles", middleware.AuthMiddleware("admin"), handler.GetServicesWithRoles)
 	r.POST("/profiles", middleware.AuthMiddleware("admin"), handler.CreateProfile)
 	r.POST("/profiles/list", middleware.AuthMiddleware("admin"), handler.ListProfiles)
@@ -77,6 +78,22 @@ func (h *Handler) GetProfileDetail(c *gin.Context) {
 	}
 
 	result, err := h.service.GetProfileDetail(req.Email)
+	if err != nil {
+		response.ServerError(c, err.Error())
+		return
+	}
+
+	response.Success(c, result)
+}
+
+func (h *Handler) GetProfileDetailByID(c *gin.Context) {
+	var req dto.GetProfileDetailByIDRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result, err := h.service.GetProfileDetailByID(req.ID)
 	if err != nil {
 		response.ServerError(c, err.Error())
 		return
