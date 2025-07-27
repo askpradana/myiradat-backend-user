@@ -30,7 +30,7 @@ type TestsDTO struct {
 
 type ProfileInfoDTO struct {
 	Email string `json:"email"`
-	NoHP  string `json:"no_hp"`
+	NoHP  string `json:"noHp"`
 	Name  string `json:"name"`
 }
 

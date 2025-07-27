@@ -63,7 +63,7 @@ func (r *repository) GetProfileServicesWithRoles(profileID int) ([]dto.ServiceWi
 	var results []dto.ServiceWithRole
 
 	err := r.db.Table("profile_service_roles psr").
-		Select(`psr.service_id, s.service_name, psr.role_id, r.role_name`).
+		Select(`psr.service_id, s.service_name, s.service_code, psr.role_id, r.role_name`).
 		Joins("JOIN services s ON s.id = psr.service_id").
 		Joins("JOIN roles r ON r.id = psr.role_id AND r.master_service_id = psr.service_id").
 		Where("psr.profile_id = ?", profileID).
