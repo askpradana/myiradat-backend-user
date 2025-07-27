@@ -11,7 +11,7 @@ type Repository interface {
 	FindProfileByEmail(profile *model.Profile, email string) error
 	FindProfileByID(profile *model.Profile, id int) error
 	GetProfileServicesWithRoles(profileID int) ([]dto.ServiceWithRole, error)
-	ListProfiles(limit, offset int) ([]model.Profile, int64, error)
+	ListProfiles(limit, offset int, search string) ([]model.Profile, int64, error)
 	RoleBelongsToService(roleID, serviceID int) bool
 	CreateProfileWithRolesTx(profile *model.Profile, relations []model.ProfileServiceRole) error
 	UpdateProfileWithRolesTx(profile *model.Profile, relations []model.ProfileServiceRole) error
@@ -54,7 +54,6 @@ func (r *repository) GetServicesWithRoles() ([]model.Service, error) {
 func (r *repository) FindProfileByEmail(profile *model.Profile, email string) error {
 	return r.db.Where("email = ?", email).First(profile).Error
 }
-
 func (r *repository) FindProfileByID(profile *model.Profile, id int) error {
 	return r.db.First(profile, id).Error
 }
@@ -72,11 +71,16 @@ func (r *repository) GetProfileServicesWithRoles(profileID int) ([]dto.ServiceWi
 	return results, err
 }
 
-func (r *repository) ListProfiles(limit, offset int) ([]model.Profile, int64, error) {
+func (r *repository) ListProfiles(limit, offset int, search string) ([]model.Profile, int64, error) {
 	var profiles []model.Profile
 	var total int64
 
 	query := r.db.Model(&model.Profile{}).Where("is_deleted = false")
+
+	if search != "" {
+		searchPattern := "%" + search + "%"
+		query = query.Where("name ILIKE ? OR email ILIKE ?", searchPattern, searchPattern)
+	}
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
